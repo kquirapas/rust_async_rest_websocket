@@ -44,8 +44,14 @@ async fn handle_socket(mut socket: WebSocket) {
         }
 
         match msg.to_text() {
-            Ok(text) => println!("Sent from client: {text}"),
+            Ok(text) => {
+                println!("Sent from client: {text}");
+            }
             Err(_) => return,
+        }
+
+        if socket.send(msg).await.is_err() {
+            return;
         }
     }
 }

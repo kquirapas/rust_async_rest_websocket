@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use axum::http::Uri;
-use futures_util::{SinkExt, StreamExt};
+use futures_util::SinkExt;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio_websockets::{ClientBuilder, Message};
 
@@ -17,6 +17,9 @@ async fn main() -> Result<()> {
     let stdin = tokio::io::stdin();
     let mut stdin = BufReader::new(stdin).lines();
 
+    // println!("socket: {socket:?}");
+    // println!("resp: {response:?}");
+
     loop {
         let cli_input = stdin
             .next_line()
@@ -24,7 +27,10 @@ async fn main() -> Result<()> {
             .with_context(|| "Failed to read from stdin.")?;
 
         if let Some(msg) = cli_input {
-            tokio::spawn(async move { socket.send(Message::text(msg)).await });
+            socket
+                .send(Message::text(msg))
+                .await
+                .with_context(|| "Failed to send msg.")?
         }
     }
 }
